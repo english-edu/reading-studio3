@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Collaborative Reading Studio</title>
+  <style>
+    :root{
+      --navy:#14532d;
+      --navy2:#15803d;
+      --blue:#34d399;
+      --soft:#ecfdf5;
+      --soft2:#f7fffb;
+      --line:#bbf7d0;
+      --ink:#1b3326;
+      --muted:#5f7668;
+      --green:#16a34a;
+      --red:#dd5a63;
+      --shadow:0 22px 55px rgba(20,83,45,.16);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(187,247,208,.58), transparent 20%),
+        radial-gradient(circle at 92% 10%, rgba(220,252,231,.78), transparent 18%),
+        linear-gradient(180deg,#ecfdf5 0%,#f7fffb 55%,#ecfdf5 100%);
+      min-height:100vh;
+      line-height:1.7;
+    }
+    .wrap{max-width:1440px;margin:0 auto;padding:18px}
+    .hero{
+      position:relative;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns:1fr 300px;
+      gap:18px;
+      align-items:center;
+      padding:34px;
+      border:1px solid var(--line);
+      border-radius:34px;
+      background:linear-gradient(135deg,#fff,#ecfdf5);
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      width:190px;height:190px;
+      border-radius:50%;
+      right:-60px;top:-70px;
+      background:rgba(20,83,45,.13);
+    }
+    .hero-tag{
+      display:inline-flex;
+      width:max-content;
+      padding:8px 14px;
+      border-radius:999px;
+      background:var(--navy);
+      color:white;
+      font-size:15px;
+      font-weight:950;
+      margin-bottom:12px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(36px,4.3vw,58px);
+      line-height:1.05;
+      letter-spacing:-.055em;
+      color:#143322;
+    }
+    .subtitle{
+      display:inline-flex;
+      padding:9px 14px;
+      border-radius:999px;
+      background:#dcfce7;
+      color:#15803d;
+      font-size:19px;
+      font-weight:950;
+    }
+    .hero-visual{
+      min-height:170px;
+      display:grid;
+      place-items:center;
+    }
+    .hero-visual svg{width:100%;max-width:260px}
+    .panel{
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:0 10px 26px rgba(20,83,45,.10);
+      padding:22px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:minmax(170px,.28fr) minmax(820px,1.72fr);
+      gap:18px;
+      align-items:start;
+    }
+    .tabbar{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:10px;
+      margin:18px 0;
+    }
+    .tab{
+      min-height:78px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#f7fffb;
+      color:#335c42;
+      text-align:left;
+      padding:14px 16px;
+      font:inherit;
+      font-weight:950;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(20,83,45,.06);
+    }
+    .tab b{display:block;font-size:20px;line-height:1.18}
+    .tab span{display:block;font-size:13px;color:#6b8b77;margin-top:4px}
+    .tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+    .tab.active span{color:#dcfce7}
+    .page{display:none}
+    .page.active{display:block}
+    .section-title{
+      display:inline-flex;
+      align-items:center;
+      padding:10px 16px;
+      border-radius:16px;
+      background:var(--navy);
+      color:white;
+      font-size:26px;
+      font-weight:1000;
+      margin:0 0 16px;
+      letter-spacing:-.03em;
+    }
+    .note{
+      padding:14px 16px;
+      border-radius:20px;
+      background:#ecfdf5;
+      border:1px solid var(--line);
+      color:#335c42;
+      font-weight:850;
+      margin-bottom:14px;
+    }
+    label{
+      display:grid;
+      gap:7px;
+      font-size:15px;
+      font-weight:900;
+      color:#3d6b4c;
+      margin-bottom:10px;
+    }
+    input,textarea,select{
+      width:100%;
+      border:1.5px solid var(--line);
+      border-radius:17px;
+      padding:13px 14px;
+      background:#f7fffb;
+      color:var(--ink);
+      font:inherit;
+      outline:none;
+    }
+    textarea{min-height:106px;resize:vertical}
+    input:focus,textarea:focus,select:focus{
+      border-color:#34d399;
+      box-shadow:0 0 0 5px rgba(52,211,153,.16);
+    }
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .button-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    button{
+      appearance:none;
+      border:0;
+      border-radius:16px;
+      padding:12px 16px;
+      font:inherit;
+      font-weight:950;
+      cursor:pointer;
+      transition:transform .12s ease,box-shadow .12s ease;
+    }
+    button:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(20,83,45,.15)}
+    .primary{background:linear-gradient(135deg,#34d399,#15803d);color:white}
+    .navy{background:var(--navy);color:white}
+    .plain{background:#ecfdf5;border:1px solid var(--line);color:#3d6b4c}
+    .danger{background:#fff0f2;border:1px solid #f2c5cc;color:#ad3441}
+
+    .status-row{
+      align-items:center;
+    }
+    .status-row .pill{
+      min-height:42px;
+    }
+
+    .status{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 11px;
+      border-radius:999px;
+      background:#e8f3ff;
+      color:#166534;
+      font-size:13px;
+      font-weight:950;
+      border:1px solid var(--line);
+    }
+    .pill.ok{background:#edf9f4;color:#1f7d55;border-color:#bfe6d3}
+    .pill.warn{background:#fff7e5;color:#8a6200;border-color:#ffe1a6}
+    .board{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+    }
+    .part-card{
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:linear-gradient(180deg,#f7fffb,#fff);
+      overflow:hidden;
+      box-shadow:0 8px 20px rgba(20,83,45,.06);
+    }
+    .part-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      background:var(--navy);
+      color:white;
+      padding:12px 15px;
+      font-weight:1000;
+    }
+    .part-body{padding:15px}
+    .empty{
+      color:#5f7668;
+      background:#ecfdf5;
+      border:1px dashed #86efac;
+      border-radius:18px;
+      padding:16px;
+      text-align:center;
+      font-weight:850;
+    }
+    .field{
+      margin:8px 0;
+      padding:10px 12px;
+      background:#f0fdf4;
+      border:1px solid #bbf7d0;
+      border-radius:15px;
+      word-break:break-word;
+    }
+    .field b{
+      color:#15803d;
+      display:block;
+      margin-bottom:2px;
+    }
+    .comment-list{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+    .comment{
+      border:1px solid #bbf7d0;
+      background:#fff;
+      border-radius:15px;
+      padding:10px 12px;
+      font-size:14px;
+    }
+    .comment b{color:#15803d}
+    .share-url{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top:10px;
+    }
+    .share-url input{font-size:13px}
+    .summary-card{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#f7fffb;
+      padding:16px;
+      margin-bottom:14px;
+    }
+    .live-dot{
+      width:9px;height:9px;border-radius:50%;
+      background:#d0d8e3;
+      display:inline-block;
+    }
+    .live-dot.on{background:#2e9f6d;box-shadow:0 0 0 5px rgba(46,159,109,.15)}
+
+    .guide-panel{
+      position:sticky;
+      top:16px;
+      padding:12px;
+      border-radius:20px;
+    }
+    .guide-panel .section-title{
+      font-size:21px;
+      padding:8px 11px;
+      margin-bottom:9px;
+    }
+    .guide-panel .note{
+      font-size:16px;
+      padding:11px;
+      margin-bottom:0;
+      line-height:1.85;
+      font-weight:950;
+    }
+    .teacher-summary{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .teacher-stat{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#f0fdf4;
+      padding:16px;
+      text-align:center;
+      color:#14532d;
+      font-weight:950;
+    }
+    .teacher-stat b{
+      display:block;
+      font-size:30px;
+      line-height:1.15;
+      color:#15803d;
+    }
+    .teacher-table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:white;
+    }
+    .teacher-table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+      text-align:center;
+      font-size:15px;
+    }
+    .teacher-table th,.teacher-table td{
+      border:1px solid var(--line);
+      padding:12px 10px;
+      vertical-align:middle;
+      word-break:keep-all;
+    }
+    .teacher-table th{
+      background:#dcfce7;
+      color:#14532d;
+      font-weight:1000;
+    }
+    .complete-cell{
+      background:#ecfdf5;
+      color:#14532d;
+      font-weight:1000;
+    }
+    .incomplete-cell{
+      background:#fff;
+      color:#8a9a8f;
+      font-weight:850;
+    }
+    .teacher-table small{
+      display:block;
+      margin-top:3px;
+      color:#5f7668;
+      font-size:12px;
+      font-weight:800;
+    }
+    .complete-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:5px 10px;
+      border-radius:999px;
+      background:#14532d;
+      color:#fff;
+      font-size:13px;
+      font-weight:1000;
+    }
+    .incomplete-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:5px 10px;
+      border-radius:999px;
+      background:#f1f5f3;
+      color:#718074;
+      font-size:13px;
+      font-weight:950;
+    }
+
+    @media(max-width:1080px){
+      .hero,.grid{grid-template-columns:1fr}
+      .guide-panel{position:static}
+      .tabbar{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:680px){
+      .wrap{padding:12px}
+      .hero,.panel{padding:18px;border-radius:24px}
+      .tabbar,.board,.row{grid-template-columns:1fr}
+      .section-title{font-size:22px}
+      .button-row button{flex:1 1 100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div>
+        <div class="hero-tag">지수T와 함께하는 생생한 영어수업</div>
+        <h1>Collaborative Reading Studio</h1>
+        
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <svg viewBox="0 0 280 210">
+          <rect x="18" y="20" width="244" height="160" rx="28" fill="#ecfdf5" stroke="#cfe0f6" stroke-width="3"/>
+          <circle cx="70" cy="72" r="25" fill="#86efac"/>
+          <circle cx="140" cy="62" r="25" fill="#bbf7d0"/>
+          <circle cx="210" cy="72" r="25" fill="#86efac"/>
+          <rect x="43" y="104" width="54" height="42" rx="14" fill="#dcfce7"/>
+          <rect x="113" y="94" width="54" height="52" rx="14" fill="#dcfce7"/>
+          <rect x="183" y="104" width="54" height="42" rx="14" fill="#dcfce7"/>
+          <path d="M86 88c22 21 48 24 78 0" fill="none" stroke="#15803d" stroke-width="8" stroke-linecap="round"/>
+          <text x="56" y="78" font-size="18" font-weight="900" fill="#14532d">A</text>
+          <text x="126" y="68" font-size="18" font-weight="900" fill="#14532d">B</text>
+          <text x="196" y="78" font-size="18" font-weight="900" fill="#14532d">C</text>
+          <text x="78" y="168" font-size="14" font-weight="900" fill="#15803d">read together</text>
+        </svg>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="section-title">모둠 입장</div>
+      <div class="row">
+        <label>학번
+          <input id="studentNo">
+        </label>
+        <label>이름
+          <input id="studentName">
+        </label>
+      </div>
+      <div class="row">
+        <label>모둠
+          <select id="groupCode">
+            <option value="">선택</option>
+            <option value="1조">1조</option>
+            <option value="2조">2조</option>
+            <option value="3조">3조</option>
+            <option value="4조">4조</option>
+            <option value="5조">5조</option>
+            <option value="6조">6조</option>
+          </select>
+        </label>
+        <label>전문가
+          <select id="partSelect">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </label>
+      </div>
+      <div class="button-row status-row">
+        <button class="primary" id="enterBtn">모둠 입장</button>
+        <button class="danger" id="leaveBtn">현재 모둠 초기화</button>
+        <span class="pill" id="firebaseStatus"><span class="live-dot" id="liveDot"></span> Firebase 연결 대기</span>
+        <span class="pill" id="currentGroup">모둠 없음</span>
+      </div>
+    </section>
+
+    <nav class="tabbar">
+      <button class="tab active" data-page="myPartPage"><b>전문가 분석</b><span>지문 내용 정리</span></button>
+      <button class="tab" data-page="boardPage"><b>모둠 공유판</b><span>친구 분석 확인</span></button>
+      <button class="tab" data-page="commentPage"><b>피드백 공유</b><span>질문 · 좋은 점 · 보완점</span></button>
+      <button class="tab" data-page="summaryPage"><b>함께 정리</b><span>공동 흐름 정리</span></button>
+      <button class="tab" data-page="teacherPage"><b>교사 대시보드</b><span>조별 완성 현황</span></button>
+    </nav>
+
+    <main class="grid">
+      <aside class="panel guide-panel">
+        <div class="section-title">활동 안내</div>
+        <div class="note">
+          ① 모둠 입장<br>
+          ② 전문가 분석 저장<br>
+          ③ 친구 분석 확인<br>
+          ④ 피드백 작성<br>
+          ⑤ 함께 정리
+        </div>
+      </aside>
+
+      <section>
+        <article class="panel page active" id="myPartPage">
+          <div class="section-title">전문가 분석</div>
+          <label>전문가 지문
+            <textarea id="partText" placeholder="전문가가 맡은 영어 지문을 붙여넣으세요."></textarea>
+          </label>
+          <div class="row">
+            <label>핵심 단어 1
+              <input id="keyword1" >
+            </label>
+            <label>핵심 단어 2
+              <input id="keyword2" >
+            </label>
+          </div>
+          <label>이 Part의 핵심 내용
+            <textarea id="partSummary" placeholder="핵심 내용을 한두 문장으로 정리하세요."></textarea>
+          </label>
+          <label>문장 기능
+            <select id="partRole">
+              <option value="소재">소재</option>
+              <option value="통념">통념</option>
+              <option value="주제">주제</option>
+              <option value="예시">예시</option>
+              <option value="결과">결과</option>
+              <option value="대조">대조</option>
+              <option value="실험">실험</option>
+              <option value="부연">부연</option>
+              <option value="추가">추가</option>
+              <option value="결론">결론</option>
+            </select>
+          </label>
+          <label>친구에게 설명할 문장
+            <textarea id="partExplanation" placeholder="친구에게 이 부분을 설명한다고 생각하고 한 문장으로 써 보세요."></textarea>
+          </label>
+          <label>내가 헷갈린 부분
+            <textarea id="confusion" placeholder="이 부분에서 헷갈린 단어, 문장, 흐름을 적어 보세요."></textarea>
+          </label>
+          <div class="button-row">
+            <button class="navy" id="expertAiBtn">AI 피드백 열기</button>
+            <button class="primary" id="savePartBtn">모둠에 공유하기</button>
+          </div>
+        </article>
+
+        <article class="panel page" id="boardPage">
+          <div class="section-title">모둠 공유판</div>
+          <div class="board" id="partBoard"></div>
+        </article>
+
+        <article class="panel page" id="commentPage">
+          <div class="section-title">피드백 공유</div>
+          <div class="row">
+            <label>피드백할 전문가
+              <select id="targetPart">
+                <option value="A">전문가 A</option>
+                <option value="B">전문가 B</option>
+                <option value="C">전문가 C</option>
+                <option value="D">전문가 D</option>
+              </select>
+            </label>
+            <label>작성자
+              <input id="commentWriter" placeholder="자동 입력됩니다.">
+            </label>
+          </div>
+          <label>좋았던 점
+            <textarea id="goodPoint" placeholder="친구의 설명에서 좋았던 점을 적어 보세요."></textarea>
+          </label>
+          <label>궁금한 점
+            <textarea id="questionPoint" placeholder="친구 설명을 듣고 궁금한 점을 적어 보세요."></textarea>
+          </label>
+          <label>보완하면 좋을 점
+            <textarea id="suggestionPoint" placeholder="더 명확하게 하면 좋을 부분을 적어 보세요."></textarea>
+          </label>
+          <div class="button-row">
+            <button class="primary" id="saveCommentBtn">피드백 저장</button>
+          </div>
+        </article>
+
+        <article class="panel page" id="summaryPage">
+          <div class="section-title">함께 정리</div>
+          <div class="row">
+            <label>A 정리
+              <textarea id="flowA"></textarea>
+            </label>
+            <label>B 정리
+              <textarea id="flowB"></textarea>
+            </label>
+          </div>
+          <div class="row">
+            <label>C 정리
+              <textarea id="flowC"></textarea>
+            </label>
+            <label>D 정리
+              <textarea id="flowD"></textarea>
+            </label>
+          </div>
+          <label>우리 모둠이 정리한 전체 흐름
+            <textarea id="overallFlow" placeholder="A → B → C → D 흐름을 한 문단으로 정리하세요."></textarea>
+          </label>
+          <label>우리 모둠의 최종 주제 문장
+            <textarea id="groupTopic" placeholder="모둠이 함께 정한 영어 주제 문장을 쓰세요."></textarea>
+          </label>
+          <div class="button-row">
+            <button class="navy" id="summaryAiBtn">AI 피드백 열기</button>
+            <button class="primary" id="saveSummaryBtn">공동 주제문 저장</button>
+          </div>
+        </article>
+
+        <article class="panel page" id="teacherPage">
+          <div class="section-title">교사 대시보드</div>
+          <div class="button-row" style="margin-top:0;margin-bottom:12px">
+            <button class="plain" id="refreshDashboardBtn">현황 새로고침</button>
+            <button class="danger" id="clearAllBtn">전체 기록 초기화</button>
+          </div>
+          <div class="teacher-summary">
+            <div class="teacher-stat"><b id="dashCompletedGroups">0</b>완성 조</div>
+            <div class="teacher-stat"><b id="dashCompletedExperts">0</b>완성 전문가</div>
+            <div class="teacher-stat"><b id="dashTotalExperts">24</b>전체 전문가</div>
+          </div>
+          <div class="teacher-table-wrap">
+            <table class="teacher-table">
+              <thead>
+                <tr>
+                  <th>모둠</th>
+                  <th>전문가 A</th>
+                  <th>전문가 B</th>
+                  <th>전문가 C</th>
+                  <th>전문가 D</th>
+                  <th>완성</th>
+                </tr>
+              </thead>
+              <tbody id="teacherDashboardBody">
+                <tr><td colspan="6">Firebase 연결 후 현황이 표시됩니다.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+    // TODO: Firebase Console에서 받은 firebaseConfig를 아래에 붙여넣으세요.
+    const firebaseConfig = {
+      apiKey: "AIzaSyBslgfra96TSoyxd0vJs994-QMV34YHzws",
+      authDomain: "reading-studio3.firebaseapp.com",
+      databaseURL: "https://reading-studio3-default-rtdb.firebaseio.com",
+      projectId: "reading-studio3",
+      storageBucket: "reading-studio3.firebasestorage.app",
+      messagingSenderId: "526072059060",
+      appId: "1:526072059060:web:740dad57c3b098d17673e1",
+      measurementId: "G-XLDMS234YB"
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const parts = ["A","B","C","D"];
+    const groupList = ["1조","2조","3조","4조","5조","6조"];
+    const CUSTOM_GPT_URL = "https://chatgpt.com/g/g-6a37d96af1148191aaef90ae6516ec0f-reading-feedback";
+
+    let app = null;
+    let db = null;
+    let currentGroupKey = "";
+    let unsubscribeParts = null;
+    let unsubscribeComments = null;
+    let unsubscribeSummary = null;
+    let partData = {};
+    let commentData = {};
+    let summaryData = {};
+    let dashboardData = {};
+    let unsubscribeDashboard = [];
+
+    function escapeHtml(value){
+      return String(value || "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+    }
+
+    function normalizeGroupCode(value){
+      return String(value || "")
+        .trim()
+        .replace(/[.#$/\[\]]/g, "-")
+        .replace(/\s+/g, "_")
+        .slice(0, 40);
+    }
+
+    function configReady(){
+      return firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("PASTE_") &&
+             firebaseConfig.databaseURL && !firebaseConfig.databaseURL.includes("PASTE_");
+    }
+
+    function initFirebase(){
+      if(!configReady()){
+        $("firebaseStatus").className = "pill warn";
+        $("firebaseStatus").innerHTML = `<span class="live-dot"></span> Firebase 설정 필요`;
+        return false;
+      }
+      try{
+        if(!app){
+          app = initializeApp(firebaseConfig);
+          db = getDatabase(app);
+        }
+        $("firebaseStatus").className = "pill ok";
+        $("firebaseStatus").innerHTML = `<span class="live-dot on"></span> Firebase 연결됨`;
+        listenDashboard();
+        return true;
+      }catch(e){
+        $("firebaseStatus").className = "pill warn";
+        $("firebaseStatus").innerHTML = `<span class="live-dot"></span> Firebase 연결 오류`;
+        alert("Firebase 설정을 확인하세요: " + e.message);
+        return false;
+      }
+    }
+
+    function saveProfile(){
+      const profile = {
+        studentName: $("studentName").value.trim(),
+        studentNo: $("studentNo").value.trim(),
+        groupCode: $("groupCode").value.trim(),
+        part: $("partSelect").value
+      };
+      localStorage.setItem("collaborativeReadingProfileV1", JSON.stringify(profile));
+    }
+
+    function loadProfile(){
+      try{
+        const profile = JSON.parse(localStorage.getItem("collaborativeReadingProfileV1") || "{}");
+        $("studentName").value = profile.studentName || "";
+        $("studentNo").value = profile.studentNo || "";
+        $("groupCode").value = profile.groupCode || "";
+        $("partSelect").value = profile.part || "A";
+        $("commentWriter").value = profile.studentName || "";
+        const urlGroup = new URLSearchParams(location.search).get("group");
+        if(urlGroup && !$("groupCode").value) $("groupCode").value = urlGroup;
+      }catch(e){}
+    }
+
+    function enterGroup(){
+      if(!initFirebase()) return;
+      const name = $("studentName").value.trim();
+      const groupCode = $("groupCode").value.trim();
+      if(!name) return alert("이름을 입력하세요.");
+      if(!groupCode) return alert("모둠을 선택하세요.");
+
+      saveProfile();
+      $("commentWriter").value = name;
+      currentGroupKey = normalizeGroupCode(groupCode);
+      $("currentGroup").textContent = `현재 모둠: ${groupCode}`;
+
+      detachListeners();
+      listenGroup();
+      alert("모둠에 입장했습니다. 이제 전문가 분석을 저장하세요.");
+    }
+
+    function detachListeners(){
+      if(typeof unsubscribeParts === "function") unsubscribeParts();
+      if(typeof unsubscribeComments === "function") unsubscribeComments();
+      if(typeof unsubscribeSummary === "function") unsubscribeSummary();
+    }
+
+    function listenDashboard(){
+      if(!db || (Array.isArray(unsubscribeDashboard) && unsubscribeDashboard.length > 0)) return;
+
+      groupList.forEach(groupName => {
+        const groupKey = normalizeGroupCode(groupName);
+        const unsubscribe = onValue(ref(db, `groups/${groupKey}`), snapshot => {
+          dashboardData[groupKey] = snapshot.val() || {};
+          renderTeacherDashboard();
+        }, error => {
+          console.warn("교사 대시보드 읽기 오류:", groupName, error);
+        });
+        unsubscribeDashboard.push(unsubscribe);
+      });
+    }
+
+    function isExpertComplete(data){
+      return !!(data && (data.summary || data.explanation || data.partText));
+    }
+
+    function renderTeacherDashboard(){
+      const body = $("teacherDashboardBody");
+      if(!body) return;
+
+      let completedExperts = 0;
+      let completedGroups = 0;
+
+      const rows = groupList.map(groupName => {
+        const groupKey = normalizeGroupCode(groupName);
+        const group = dashboardData[groupKey] || {};
+        const groupParts = group.parts || {};
+        let groupCompleteCount = 0;
+
+        const cells = parts.map(part => {
+          const data = groupParts[part];
+          const complete = isExpertComplete(data);
+          if(complete){
+            completedExperts += 1;
+            groupCompleteCount += 1;
+          }
+          const name = data && data.name ? data.name : "";
+          const studentNo = data && data.studentNo ? data.studentNo : "";
+          return `
+            <td class="${complete ? "complete-cell" : "incomplete-cell"}">
+              <span class="${complete ? "complete-pill" : "incomplete-pill"}">${complete ? "완료" : "미완료"}</span>
+              ${complete ? `<small>${escapeHtml(studentNo)} ${escapeHtml(name)}</small>` : ""}
+            </td>
+          `;
+        }).join("");
+
+        if(groupCompleteCount === 4) completedGroups += 1;
+
+        return `
+          <tr>
+            <th>${escapeHtml(groupName)}</th>
+            ${cells}
+            <td><b>${groupCompleteCount}/4</b></td>
+          </tr>
+        `;
+      }).join("");
+
+      body.innerHTML = rows;
+      $("dashCompletedExperts").textContent = completedExperts;
+      $("dashCompletedGroups").textContent = completedGroups;
+      $("dashTotalExperts").textContent = String(groupList.length * parts.length);
+    }
+
+    function listenGroup(){
+      if(!currentGroupKey) return;
+
+      unsubscribeParts = onValue(ref(db, `groups/${currentGroupKey}/parts`), snapshot => {
+        partData = snapshot.val() || {};
+        renderBoard();
+      });
+
+      unsubscribeComments = onValue(ref(db, `groups/${currentGroupKey}/comments`), snapshot => {
+        commentData = snapshot.val() || {};
+        renderBoard();
+      });
+
+      unsubscribeSummary = onValue(ref(db, `groups/${currentGroupKey}/summary/latest`), snapshot => {
+        summaryData = snapshot.val() || {};
+        renderSummaryFromData();
+      });
+    }
+
+    function openCustomGptWithPrompt(prompt){
+      if(!prompt.trim()) return alert("피드백 받을 내용을 먼저 입력하세요.");
+      const openWindow = () => window.open(CUSTOM_GPT_URL, "_blank", "noopener,noreferrer");
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(prompt)
+          .then(() => {
+            alert("피드백 요청 내용이 복사되었습니다. 열린 GPT 창에 붙여넣으세요.");
+            openWindow();
+          })
+          .catch(() => {
+            alert("GPT 창이 열립니다. 필요한 경우 화면의 내용을 직접 복사해 붙여넣으세요.");
+            openWindow();
+          });
+      }else{
+        alert("GPT 창이 열립니다. 필요한 경우 화면의 내용을 직접 복사해 붙여넣으세요.");
+        openWindow();
+      }
+    }
+
+    function buildExpertPrompt(){
+      return `[전문가 지문]
+${$("partText").value.trim()}
+
+[전문가 분석]
+전문가: ${$("partSelect").value}
+핵심 단어 1: ${$("keyword1").value.trim()}
+핵심 단어 2: ${$("keyword2").value.trim()}
+핵심 내용: ${$("partSummary").value.trim()}
+문장 기능: ${$("partRole").value}
+친구에게 설명할 문장: ${$("partExplanation").value.trim()}
+헷갈린 부분: ${$("confusion").value.trim()}
+
+[요청]
+위 영어 지문과 전문가 분석을 보고 피드백해 주세요.
+정답을 바로 제시하지 말고, 학생이 스스로 분석을 보완할 수 있도록 좋은 점, 다시 생각할 점, 흐름 점검, 수정 힌트를 한국어로 제시해 주세요.`;
+    }
+
+    function buildSummaryPrompt(){
+      const sharedParts = parts.map(part => {
+        const data = partData[part] || {};
+        return `전문가 ${part}
+- 이름: ${data.name || ""}
+- 핵심 단어: ${(data.keyword1 || "")} / ${(data.keyword2 || "")}
+- 핵심 내용: ${data.summary || ""}
+- 문장 기능: ${data.role || ""}
+- 설명 문장: ${data.explanation || ""}`;
+      }).join("\n\n");
+
+      return `[모둠 공유 내용]
+${sharedParts}
+
+[함께 정리]
+A 정리: ${$("flowA").value.trim()}
+B 정리: ${$("flowB").value.trim()}
+C 정리: ${$("flowC").value.trim()}
+D 정리: ${$("flowD").value.trim()}
+
+우리 모둠이 정리한 전체 흐름:
+${$("overallFlow").value.trim()}
+
+우리 모둠의 최종 주제 문장:
+${$("groupTopic").value.trim()}
+
+[요청]
+위 모둠 공유 내용과 공동 정리를 보고 피드백해 주세요.
+정답 주제문을 바로 제시하지 말고, 글의 전체 흐름이 자연스러운지, 각 전문가 정리가 연결되는지, 최종 주제 문장이 지문의 중심 내용을 담고 있는지 점검해 주세요.
+학생들이 다시 수정할 수 있도록 좋은 점, 보완할 점, 수정 힌트를 한국어로 제시해 주세요.`;
+    }
+
+    async function savePart(){
+      if(!currentGroupKey) return alert("먼저 모둠에 입장하세요.");
+      const part = $("partSelect").value;
+      const name = $("studentName").value.trim();
+      const data = {
+        name,
+        studentNo: $("studentNo").value.trim(),
+        part,
+        partText: $("partText").value.trim(),
+        keyword1: $("keyword1").value.trim(),
+        keyword2: $("keyword2").value.trim(),
+        summary: $("partSummary").value.trim(),
+        role: $("partRole").value,
+        explanation: $("partExplanation").value.trim(),
+        confusion: $("confusion").value.trim(),
+        updatedAt: serverTimestamp()
+      };
+
+      if(!data.partText || !data.summary || !data.explanation){
+        return alert("전문가 지문, 핵심 내용, 친구에게 설명할 문장을 입력하세요.");
+      }
+
+      await set(ref(db, `groups/${currentGroupKey}/parts/${part}`), data);
+      alert("전문가 분석이 저장되었습니다.");
+      showPage("boardPage");
+    }
+
+    async function saveComment(){
+      if(!currentGroupKey) return alert("먼저 모둠에 입장하세요.");
+      const targetPart = $("targetPart").value;
+      const data = {
+        targetPart,
+        writer: $("commentWriter").value.trim() || $("studentName").value.trim(),
+        good: $("goodPoint").value.trim(),
+        question: $("questionPoint").value.trim(),
+        suggestion: $("suggestionPoint").value.trim(),
+        createdAt: serverTimestamp()
+      };
+      if(!data.good && !data.question && !data.suggestion){
+        return alert("좋았던 점, 궁금한 점, 보완점 중 하나 이상 입력하세요.");
+      }
+      await push(ref(db, `groups/${currentGroupKey}/comments`), data);
+      $("goodPoint").value = "";
+      $("questionPoint").value = "";
+      $("suggestionPoint").value = "";
+      alert("피드백이 저장되었습니다.");
+      showPage("boardPage");
+    }
+
+    async function saveSummary(){
+      if(!currentGroupKey) return alert("먼저 모둠에 입장하세요.");
+      const data = {
+        flowA: $("flowA").value.trim(),
+        flowB: $("flowB").value.trim(),
+        flowC: $("flowC").value.trim(),
+        flowD: $("flowD").value.trim(),
+        overallFlow: $("overallFlow").value.trim(),
+        groupTopic: $("groupTopic").value.trim(),
+        updatedBy: $("studentName").value.trim(),
+        updatedAt: serverTimestamp()
+      };
+      if(!data.overallFlow || !data.groupTopic){
+        return alert("전체 흐름과 모둠 최종 주제 문장을 입력하세요.");
+      }
+      await set(ref(db, `groups/${currentGroupKey}/summary/latest`), data);
+      alert("공동 구조와 주제문이 저장되었습니다.");
+    }
+
+    function commentsFor(part){
+      return Object.values(commentData || {}).filter(c => c.targetPart === part);
+    }
+
+    function renderBoard(){
+      const board = $("partBoard");
+
+      board.innerHTML = parts.map(part => {
+        const data = partData[part];
+        const comments = commentsFor(part);
+        if(!data){
+          return `
+            <article class="part-card">
+              <div class="part-head"><span>전문가 ${part}</span><span>대기 중</span></div>
+              <div class="part-body"><div class="empty">아직 저장된 분석이 없습니다.</div></div>
+            </article>
+          `;
+        }
+        return `
+          <article class="part-card">
+            <div class="part-head">
+              <span>전문가 ${part}</span>
+              <span>${escapeHtml(data.name || "")}</span>
+            </div>
+            <div class="part-body">
+              <div class="field"><b>핵심 단어</b>${escapeHtml(data.keyword1 || "-")} / ${escapeHtml(data.keyword2 || "-")}</div>
+              <div class="field"><b>핵심 내용</b>${escapeHtml(data.summary || "-")}</div>
+              <div class="field"><b>문장 기능</b>${escapeHtml(data.role || "-")}</div>
+              <div class="field"><b>친구에게 설명할 문장</b>${escapeHtml(data.explanation || "-")}</div>
+              <div class="field"><b>헷갈린 부분</b>${escapeHtml(data.confusion || "-")}</div>
+              <div class="comment-list">
+                ${comments.length ? comments.map(c => `
+                  <div class="comment">
+                    <b>${escapeHtml(c.writer || "익명")}</b><br>
+                    ${c.good ? `좋았던 점: ${escapeHtml(c.good)}<br>` : ""}
+                    ${c.question ? `궁금한 점: ${escapeHtml(c.question)}<br>` : ""}
+                    ${c.suggestion ? `보완점: ${escapeHtml(c.suggestion)}` : ""}
+                  </div>
+                `).join("") : `<div class="comment">아직 공유된 피드백이 없습니다.</div>`}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderSummaryFromData(){
+      if(!summaryData || !Object.keys(summaryData).length) return;
+      $("flowA").value = summaryData.flowA || "";
+      $("flowB").value = summaryData.flowB || "";
+      $("flowC").value = summaryData.flowC || "";
+      $("flowD").value = summaryData.flowD || "";
+      $("overallFlow").value = summaryData.overallFlow || "";
+      $("groupTopic").value = summaryData.groupTopic || "";
+    }
+
+    function showPage(id){
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      $(id).classList.add("active");
+      const tab = document.querySelector(`[data-page="${id}"]`);
+      if(tab) tab.classList.add("active");
+    }
+
+    async function resetAll(){
+      const selectedGroup = $("groupCode").value.trim();
+      const groupKey = currentGroupKey || normalizeGroupCode(selectedGroup);
+
+      if(db && groupKey){
+        const ok = confirm(`${selectedGroup || groupKey}에 저장된 전문가 분석, 피드백, 함께 정리를 모두 삭제할까요?\n\n이 작업은 되돌릴 수 없습니다.`);
+        if(!ok) return;
+
+        try{
+          await remove(ref(db, `groups/${groupKey}`));
+          alert("현재 모둠의 저장 기록을 삭제했습니다.");
+        }catch(e){
+          alert("Firebase 저장 기록 삭제에 실패했습니다. Rules 설정을 확인하세요: " + e.message);
+          return;
+        }
+      }
+
+      localStorage.removeItem("collaborativeReadingProfileV1");
+      location.href = location.pathname;
+    }
+
+    async function clearAllGroups(){
+      if(!db) return alert("Firebase가 아직 연결되지 않았습니다.");
+      const ok = confirm("1조~6조의 모든 전문가 분석, 피드백, 함께 정리를 삭제할까요?\n\n수업을 새로 시작할 때만 사용하세요. 이 작업은 되돌릴 수 없습니다.");
+      if(!ok) return;
+
+      try{
+        await Promise.all(groupList.map(groupName => {
+          const groupKey = normalizeGroupCode(groupName);
+          return remove(ref(db, `groups/${groupKey}`));
+        }));
+        alert("1조~6조의 전체 기록을 삭제했습니다.");
+        dashboardData = {};
+        renderTeacherDashboard();
+      }catch(e){
+        alert("전체 기록 삭제에 실패했습니다. Rules 설정을 확인하세요: " + e.message);
+      }
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => showPage(tab.dataset.page));
+    });
+
+    $("enterBtn").addEventListener("click", enterGroup);
+    $("savePartBtn").addEventListener("click", savePart);
+    $("expertAiBtn").addEventListener("click", () => openCustomGptWithPrompt(buildExpertPrompt()));
+    $("saveCommentBtn").addEventListener("click", saveComment);
+    $("saveSummaryBtn").addEventListener("click", saveSummary);
+    $("summaryAiBtn").addEventListener("click", () => openCustomGptWithPrompt(buildSummaryPrompt()));
+    $("refreshDashboardBtn").addEventListener("click", renderTeacherDashboard);
+    $("clearAllBtn").addEventListener("click", clearAllGroups);
+    $("leaveBtn").addEventListener("click", resetAll);
+    ["studentName","studentNo","groupCode","partSelect"].forEach(id => {
+      $(id).addEventListener("input", saveProfile);
+      $(id).addEventListener("change", saveProfile);
+    });
+
+    loadProfile();
+    renderBoard();
+    renderTeacherDashboard();
+
+    if(configReady()){
+      initFirebase();
+    }
+  </script>
+</body>
+</html>
